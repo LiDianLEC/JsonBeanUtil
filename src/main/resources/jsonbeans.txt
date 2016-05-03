@@ -1,0 +1,61 @@
+jerry.test AppInfo
+
+{
+		"total": {
+			"amount": 63206.00,
+			"astransaction_money": 2528.24
+		},
+		"record": [{
+			"bank_num": null,
+			"bank_id": null,
+			"id": 23,
+			"transaction_time": "2016-04-27",
+			"transaction_money": 220.92,
+			"sn": "HYS20160427144936000026",
+			"confirm_date": null,
+			"status": 3,
+			"ratio": 20.0,
+			"trade_amount": 5523.00,
+			"audit_status": 0,
+			"carrier_id": 19
+		}, {
+			"bank_num": null,
+			"bank_id": null,
+			"id": 24,
+			"transaction_time": "2016-04-28",
+			"transaction_money": 77.72,
+			"sn": "HYS20160428171255000030",
+			"confirm_date": null,
+			"status": 3,
+			"ratio": 20.0,
+			"trade_amount": 1943.00,
+			"audit_status": 0,
+			"carrier_id": 19
+		}, {
+			"bank_num": null,
+			"bank_id": null,
+			"id": 25,
+			"transaction_time": "2016-04-29",
+			"transaction_money": 743.20,
+			"sn": "HYS20160429144644000033",
+			"confirm_date": null,
+			"status": 0,
+			"ratio": 20.0,
+			"trade_amount": 18580.00,
+			"audit_status": 0,
+			"carrier_id": 19
+		}, {
+			"bank_num": null,
+			"bank_id": null,
+			"id": 26,
+			"transaction_time": "2016-05-01",
+			"transaction_money": 743.20,
+			"sn": "HYS20160501021306000035",
+			"confirm_date": null,
+			"status": 0,
+			"ratio": 20.0,
+			"trade_amount": 18580.00,
+			"audit_status": 0,
+			"carrier_id": 19
+		}]
+	}
