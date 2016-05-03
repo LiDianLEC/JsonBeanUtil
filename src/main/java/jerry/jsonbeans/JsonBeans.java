@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import jerry.jsonbeans.models.ClassDescribe;
 import jerry.jsonbeans.models.FieldDescribe;
+import jerry.jsonbeans.utils.FileUtils;
 import jerry.jsonbeans.utils.StringUtils;
 
 import java.io.*;
@@ -170,18 +171,7 @@ public class JsonBeans {
     private static void genFile(String s, ClassDescribe describe) {
         File file = new File("output/" + describe.packageName.replaceAll("[.]", "/"), describe.className + ".java");
         System.out.println(file.getAbsolutePath());
-        try {
-            if (file.exists()) {
-                file.delete();
-            } else {
-                file.getParentFile().mkdirs();
-            }
 
-            BufferedWriter wb = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
-            wb.write(s);
-            wb.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        FileUtils.write(s, file);
     }
 }

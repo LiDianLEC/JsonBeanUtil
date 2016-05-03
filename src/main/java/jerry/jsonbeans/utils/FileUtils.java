@@ -138,4 +138,19 @@ public class FileUtils {
         }
     }
 
+    public static void write(String s, File file) {
+        try {
+            if (file.exists()) {
+                file.delete();
+            } else {
+                file.getParentFile().mkdirs();
+            }
+
+            BufferedWriter wb = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
+            wb.write(s);
+            wb.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
