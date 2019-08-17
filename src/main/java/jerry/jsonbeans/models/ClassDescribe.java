@@ -9,7 +9,13 @@ import java.util.List;
  */
 public class ClassDescribe {
 
-    public String packageName;
+    @Override
+	public String toString() {
+		return "ClassDescribe [packageName=" + packageName + ", className=" + className + ", fieldDescribes="
+				+ fieldDescribes + ", classDescribes=" + classDescribes + "]";
+	}
+
+	public String packageName;
     public String className;
     public List<FieldDescribe> fieldDescribes;
     public List<ClassDescribe> classDescribes;

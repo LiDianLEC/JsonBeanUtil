@@ -81,6 +81,10 @@ public class JsonBeans {
                         }
                         type = type.substring(type.lastIndexOf(".")+1, type.length());
                     }
+                    
+                    Object valueObject = jsonObject.get(name);
+                    System.out.println(valueObject.toString());
+                    
                 }
             }
             if (config.getBoolean(Const.DEFAULT_LONG)) {
