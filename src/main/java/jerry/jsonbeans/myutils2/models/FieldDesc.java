@@ -2,12 +2,23 @@ package jerry.jsonbeans.myutils2.models;
 
 public class FieldDesc {
 	
+
+
 	private String importType;
 	private String fieldType;
 	private String fieldName;
 	private Boolean optional;
 	private Object defaultValue;
 	private String note;
+	private String format;
+	
+	public String getFormat() {
+		return format;
+	}
+
+	public void setFormat(String format) {
+		this.format = format;
+	}
 	
 	public String getImportType() {
 		return importType;
