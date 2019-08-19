@@ -168,14 +168,17 @@ public class JavaBeanUtils {
 		StringBuffer classEndPart = new StringBuffer();
 		StringBuffer classStartPart = new StringBuffer();
 		
-		classPackagePart.append("package packageName;").append(Const._R_N);
+		classPackagePart.append("package jerry.jsonbeans.autogen;").append(Const._R_N);
 		classImportPart.append("import lombok.Data;").append(Const._R_N)
 						.append("import io.swagger.annotations.ApiModelProperty;").append(Const._R_N)
-						.append("import java.io.Serializable;").append(Const._R_N);
+						.append("import java.io.Serializable;").append(Const._R_N)
+						.append("import javax.validation.constraints.NotNull;").append(Const._R_N)
+						.append("import javax.validation.constraints.NotEmpty;").append(Const._R_N)
+						.append("import javax.validation.constraints.NotBlank;").append(Const._R_N);
 		List<FieldDesc> fieldDescList = classDesc.getFieldDescList();
 		for (FieldDesc fieldDesc : fieldDescList) {
 			if (Optional.ofNullable(fieldDesc.getImportType()).isPresent() ) {
-				classImportPart.append(fieldDesc.getImportType()).append(Const._R_N);
+				//classImportPart.append(fieldDesc.getImportType()).append(";").append(Const._R_N);
 			}
 			classPropPart.append(Const._SPACE).append("@ApiModelProperty(value = \"").append(fieldDesc.getNote()).append("\"");
 			if (Optional.ofNullable(fieldDesc.getFormat()).isPresent() ) {
@@ -187,10 +190,19 @@ public class JavaBeanUtils {
 			if ("String".equals(fieldType) || "Integer".equals(fieldType) || "Long".equals(fieldType) || "Double".equals(fieldType) || "Float".equals(fieldType) ) {
 				classPropPart.append(Const._SPACE).append("@NotNull(message = \"").append(fieldDesc.getNote()).append("不能为空\")").append(Const._R_N);
 			}else if (fieldType.contains("List")) {
-				classPropPart.append(Const._SPACE).append("@NotEntity(message = \"").append(fieldDesc.getNote()).append("不能为空\")").append(Const._R_N);
-			}else if ("Timestamp".equals(fieldType) || "Data".equals(fieldType)) {
+				classPropPart.append(Const._SPACE).append("@NotEmpty(message = \"").append(fieldDesc.getNote()).append("不能为空\")").append(Const._R_N);
+				classImportPart.append("import java.util.List;").append(Const._R_N);
+			}else if(fieldType.contains("Map")) {
+				classPropPart.append(Const._SPACE).append("@NotEmpty(message = \"").append(fieldDesc.getNote()).append("不能为空\")").append(Const._R_N);
+				classImportPart.append("import java.util.Map;").append(Const._R_N);
+			}
+			else if ("Timestamp".equals(fieldType)) {
 				//TODO
 				classPropPart.append(Const._SPACE).append("@NotBlank(message = \"").append(fieldDesc.getNote()).append("不能为空\")").append(Const._R_N);
+				classImportPart.append("import java.sql.Timestamp;").append(Const._R_N);
+			}else if ("Data".equals(fieldType)) {
+				classPropPart.append(Const._SPACE).append("@NotBlank(message = \"").append(fieldDesc.getNote()).append("不能为空\")").append(Const._R_N);
+				classImportPart.append("import java.sql.Date;;").append(Const._R_N);
 			}
 			classPropPart.append(Const._SPACE).append("private ").append(fieldDesc.getFieldType()).append(" ").append(fieldDesc.getFieldName());
 			if (Optional.ofNullable(fieldDesc.getDefaultValue()).isPresent()) {
@@ -201,9 +213,11 @@ public class JavaBeanUtils {
 				}else if ("Data".equals(fieldType)) {
 					classPropPart.append("=").append("new Data(").append(fieldDesc.getDefaultValue()).append(")");
 				}else if (fieldType.contains("List")) {//"List".equals(fieldType)
-					classPropPart.append("=").append("JSON.parseArray(\"").append(fieldDesc.getDefaultValue()).append("\", ArrayList.class)");
+					classPropPart.append("=").append("JSON.parseArray(\"").append(fieldDesc.getDefaultValue()).append("\", ").append(fieldDesc.getFieldType().substring(fieldDesc.getFieldType().indexOf("<")+1, fieldDesc.getFieldType().indexOf(">")) ).append(".class").append(");");
+					classImportPart.append("import com.alibaba.fastjson.JSON;").append(Const._R_N);
 				}else if ("Map".equals(fieldType)) {
-					classPropPart.append("=").append("JSON.parseObject(\"").append(fieldDesc.getDefaultValue()).append("\", HashMap.class)");
+					classPropPart.append("=").append("JSON.parseObject(\"").append(fieldDesc.getDefaultValue()).append("\")");
+					classImportPart.append("import com.alibaba.fastjson.JSON;").append(Const._R_N);
 				}else {
 					classPropPart.append(" = ").append(fieldDesc.getDefaultValue());
 				}
@@ -231,7 +245,7 @@ public class JavaBeanUtils {
 	private static void genFile(StringBuffer str, ClassDesc classDesc) {
 		// TODO Auto-generated method stub
 //		File file = new File("output/" + classDesc.getClassName(), classDesc.getClassName() + ".java");
-		File file = new File("output/" , classDesc.getClassName() + ".java");
+		File file = new File("src\\main\\java\\jerry\\jsonbeans\\autogen" , classDesc.getClassName() + ".java");
         System.out.println(file.getAbsolutePath());
 		write(str.toString(), file);
 	}
@@ -240,7 +254,7 @@ public class JavaBeanUtils {
 	private static void toServiceFile(JsonDesc jsonDesc) {
 		StringBuffer serviceSB = new StringBuffer();
 		StringBuffer servicePackagePart = new StringBuffer();
-		servicePackagePart.append("package packageName;").append(Const._R_N);
+		servicePackagePart.append("package jerry.jsonbeans.autogen;").append(Const._R_N);
 		
 		StringBuffer serviceImportPart = new StringBuffer();
 		StringBuffer serviceMethodPart = new StringBuffer();
@@ -248,17 +262,18 @@ public class JavaBeanUtils {
 		
 		StringBuffer serviceStartPart = new StringBuffer();
 		serviceStartPart.append("@Service"+Const._R_N)
-						.append("public interface serviceName {").append(Const._R_N);
+						.append("public interface service {").append(Const._R_N);
 		
 		serviceEndPart.append("}");
+		serviceImportPart.append("import org.springframework.stereotype.Service;").append(Const._R_N);
 
 		List<DataDesc> dataDescList = jsonDesc.getDataDescList();
 		for (DataDesc dataDesc : dataDescList) {
 
 //			serviceImportPart.append("import ").append(dataDesc.getClassDescList().get(0).getPackeName()).append(".").append(dataDesc.getClassDescList().get(0).getClassName()).append(";").append(Const._R_N)
 //								.append("import ").append(dataDesc.getClassDescList().get(1).getPackeName()).append(".").append(dataDesc.getClassDescList().get(1).getClassName()).append(";").append(Const._R_N);
-			serviceImportPart.append("import ").append(dataDesc.getClassDescList().get(0).getClassName()).append(";").append(Const._R_N)
-			.append("import ").append(dataDesc.getClassDescList().get(1).getClassName()).append(";").append(Const._R_N);
+//			serviceImportPart.append("import ").append(dataDesc.getClassDescList().get(0).getClassName()).append(";").append(Const._R_N)
+//			.append("import ").append(dataDesc.getClassDescList().get(1).getClassName()).append(";").append(Const._R_N);
 
 			serviceMethodPart.append(Const._SPACE).append(dataDesc.getClassDescList().get(1).getClassName()).append(" ").append(dataDesc.getOperation()).append("(").append(dataDesc.getClassDescList().get(0).getClassName()).append(" ").append(firstCharToLowerCase(dataDesc.getClassDescList().get(0).getClassName())).append(");").append(Const._R_N);
 
@@ -271,7 +286,7 @@ public class JavaBeanUtils {
 
 	private static void genFile(StringBuffer str, JsonDesc jsonDesc) {
 		// TODO Auto-generated method stub
-		File file = new File("output" , "service.java");
+		File file = new File("src\\main\\java\\jerry\\jsonbeans\\autogen" , "service.java");
         System.out.println(file.getAbsolutePath());
 		write(str.toString(), file);
 	}

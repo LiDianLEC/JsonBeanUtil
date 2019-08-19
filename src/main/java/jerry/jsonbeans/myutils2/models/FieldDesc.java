@@ -1,9 +1,10 @@
 package jerry.jsonbeans.myutils2.models;
 
+
+
 public class FieldDesc {
 
-
-
+	
 	private String importType;
 	private String fieldType;
 	private String fieldName;
