@@ -2,6 +2,8 @@ package jerry.jsonbeans.myutils2.models;
 
 import java.util.List;
 
+import javax.xml.crypto.Data;
+
 public class JsonDesc {
 	
 	private String message;

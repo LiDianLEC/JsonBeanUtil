@@ -40,7 +40,4 @@ public class ClassDesc {
 	public void setClassDescList(List<ClassDesc> classDescList) {
 		this.classDescList = classDescList;
 	}
-
-	
-
 }

@@ -1,7 +1,7 @@
 package jerry.jsonbeans.myutils2.models;
 
 public class FieldDesc {
-	
+
 
 
 	private String importType;
@@ -11,7 +11,25 @@ public class FieldDesc {
 	private Object defaultValue;
 	private String note;
 	private String format;
+	private Object key;
+	private Object value;
 	
+
+	public Object getKey() {
+		return key;
+	}
+
+	public void setKey(Object key) {
+		this.key = key;
+	}
+
+	public Object getValue() {
+		return value;
+	}
+
+	public void setValue(Object value) {
+		this.value = value;
+	}
 	public String getFormat() {
 		return format;
 	}

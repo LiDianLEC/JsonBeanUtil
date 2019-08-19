@@ -9,7 +9,9 @@ import java.nio.Buffer;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -192,8 +194,16 @@ public class JavaBeanUtils {
 			}
 			classPropPart.append(Const._SPACE).append("private ").append(fieldDesc.getFieldType()).append(" ").append(fieldDesc.getFieldName());
 			if (Optional.ofNullable(fieldDesc.getDefaultValue()).isPresent()) {
-				if ("String".equals(fieldType) || "Timestamp".equals(fieldType) || "Data".equals(fieldType)) {
+				if ("String".equals(fieldType)) {
 					classPropPart.append(" = \"").append(fieldDesc.getDefaultValue()).append("\"");
+				}else if ("Timestamp".equals(fieldType)) {
+					classPropPart.append("=").append("new Timestamp(").append(fieldDesc.getDefaultValue()).append(")");
+				}else if ("Data".equals(fieldType)) {
+					classPropPart.append("=").append("new Data(").append(fieldDesc.getDefaultValue()).append(")");
+				}else if (fieldType.contains("List")) {//"List".equals(fieldType)
+					classPropPart.append("=").append("JSON.parseArray(\"").append(fieldDesc.getDefaultValue()).append("\", ArrayList.class)");
+				}else if ("Map".equals(fieldType)) {
+					classPropPart.append("=").append("JSON.parseObject(\"").append(fieldDesc.getDefaultValue()).append("\", HashMap.class)");
 				}else {
 					classPropPart.append(" = ").append(fieldDesc.getDefaultValue());
 				}
@@ -220,7 +230,8 @@ public class JavaBeanUtils {
 
 	private static void genFile(StringBuffer str, ClassDesc classDesc) {
 		// TODO Auto-generated method stub
-		File file = new File("output/" + classDesc.getClassName(), classDesc.getClassName() + ".java");
+//		File file = new File("output/" + classDesc.getClassName(), classDesc.getClassName() + ".java");
+		File file = new File("output/" , classDesc.getClassName() + ".java");
         System.out.println(file.getAbsolutePath());
 		write(str.toString(), file);
 	}
@@ -244,8 +255,10 @@ public class JavaBeanUtils {
 		List<DataDesc> dataDescList = jsonDesc.getDataDescList();
 		for (DataDesc dataDesc : dataDescList) {
 
-			serviceImportPart.append("import ").append(dataDesc.getClassDescList().get(0).getPackeName()).append(".").append(dataDesc.getClassDescList().get(0).getClassName()).append(";").append(Const._R_N)
-								.append("import ").append(dataDesc.getClassDescList().get(1).getPackeName()).append(".").append(dataDesc.getClassDescList().get(1).getClassName()).append(";").append(Const._R_N);
+//			serviceImportPart.append("import ").append(dataDesc.getClassDescList().get(0).getPackeName()).append(".").append(dataDesc.getClassDescList().get(0).getClassName()).append(";").append(Const._R_N)
+//								.append("import ").append(dataDesc.getClassDescList().get(1).getPackeName()).append(".").append(dataDesc.getClassDescList().get(1).getClassName()).append(";").append(Const._R_N);
+			serviceImportPart.append("import ").append(dataDesc.getClassDescList().get(0).getClassName()).append(";").append(Const._R_N)
+			.append("import ").append(dataDesc.getClassDescList().get(1).getClassName()).append(";").append(Const._R_N);
 
 			serviceMethodPart.append(Const._SPACE).append(dataDesc.getClassDescList().get(1).getClassName()).append(" ").append(dataDesc.getOperation()).append("(").append(dataDesc.getClassDescList().get(0).getClassName()).append(" ").append(firstCharToLowerCase(dataDesc.getClassDescList().get(0).getClassName())).append(");").append(Const._R_N);
 
@@ -258,7 +271,7 @@ public class JavaBeanUtils {
 
 	private static void genFile(StringBuffer str, JsonDesc jsonDesc) {
 		// TODO Auto-generated method stub
-		File file = new File("output/service" , "service.java");
+		File file = new File("output" , "service.java");
         System.out.println(file.getAbsolutePath());
 		write(str.toString(), file);
 	}
@@ -321,98 +334,15 @@ public class JavaBeanUtils {
 				dataDesc.setStatus(jsonObject2.getObject(key2, String.class));
 			}else if ("request".equals(key2) || "response".equals(key2)) {
 				//TODO
-				
-				
 				JSONObject jsonObject3 = jsonObject2.getJSONObject(key2);
 				// toClassDesc
 				ClassDesc classDesc = new ClassDesc();
-				classDesc.setClassName(firstCharToUpperCase(key2));
-				classDesc.setPackeName("yyy");
+				classDesc.setClassName(firstCharToUpperCase(jsonObject2.getObject("operation", String.class))+firstCharToUpperCase(key2));
+				classDesc.setPackeName("");
 				toClassDesc(jsonObject3,classDesc);
 				
 				dataClassDescList.add(classDesc);
 				dataDesc.setClassDescList(dataClassDescList);
-				
-				/**
-"request": {
-			"openId": {
-				"_type": "string",
-				"optional": false,
-				"defaultValue": null,
-				"note": "用户标识"
-			},
-			"name": {
-				"_type": "string",
-				"optional": false,
-				"defaultValue": null,
-				"note": "用户名称"
-			},
-			"age": {
-				"_type": "integer",
-				"optional": false,
-				"defaultValue": null,
-				"note": "年龄"
-			}
-		},
-		"response": {
-			"pageSize": {
-				"_type": "integer",
-				"optional": true,
-				"defaultValue": 10,
-				"note": "每页条数"
-			},
-			"page": {
-				"_type": "integer",
-				"optional": true,
-				"defaultValue": 0,
-				"note": "当前页码"
-			},
-			"total": {
-				"_type": "integer",
-				"optional": true,
-				"defaultValue": null,
-				"note": "总数"
-			},
-			"content": {
-				"_type": "list",
-				"optional": false,
-				"inner": {
-					"openId": {
-						"_type": "string",
-						"optional": false,
-						"defaultValue": null,
-						"note": "用户标识"
-					},
-					"name": {
-						"_type": "string",
-						"optional": false,
-						"defaultValue": null,
-						"note": "用户名称"
-					},
-					"age": {
-						"_type": "integer",
-						"optional": false,
-						"defaultValue": null,
-						"note": "年龄"
-					},
-					"sex": {
-						"_type": "integer",
-						"optional": false,
-						"defaultValue": 0,
-						"note": "性别0-男，1-女"
-					},
-					"location": {
-						"_type": "string",
-						"optional": false,
-						"defaultValue": "中国",
-						"note": "位置信息"
-					}
-				},
-				"defaultValue": [],
-				"note": "信息详情"
-			}
-		}
-				 */
 			}else {
 				throw new RuntimeException("传入参数错误");
 			}
@@ -446,7 +376,7 @@ public class JavaBeanUtils {
 				fieldDesc.setDefaultValue(jsonObject4.get("defaultValue"));
 				fieldDesc.setNote(jsonObject4.getObject("note", String.class));
 				fieldDesc.setFieldName(key3);
-				fieldDesc.setImportType("import "+ArrayList.class.getCanonicalName()+";"+Const._R_N+"import xxx."+firstCharToUpperCase(key3));
+				fieldDesc.setImportType("import "+ArrayList.class.getCanonicalName()+";"+Const._R_N+"import "+firstCharToUpperCase(key3));
 				fieldDescList.add(fieldDesc);
 				classDesc.setFieldDescList(fieldDescList);
 				ClassDesc classDesc2 = new ClassDesc();
@@ -480,17 +410,29 @@ public class JavaBeanUtils {
 				
 			}else if ("map".equals(fieldType)) {
 				//TODO
+				fieldDesc.setFieldType(firstCharToUpperCase(fieldType));
+				fieldDesc.setOptional(jsonObject4.getObject("optional", Boolean.class));
+				fieldDesc.setDefaultValue(jsonObject4.get("defaultValue"));
+				fieldDesc.setNote(jsonObject4.getObject("note", String.class));
+				fieldDesc.setFieldName(key3);
+				fieldDesc.setKey(jsonObject4.get("key"));
+				fieldDesc.setValue(jsonObject4.get("Value"));
+				fieldDesc.setImportType("import "+Map.class.getCanonicalName()+";"+Const._R_N+"import "+HashMap.class.getCanonicalName());
+				fieldDescList.add(fieldDesc);
+				classDesc.setFieldDescList(fieldDescList);
+				
+				
 				
 			}else if ("any".equals(fieldType)) {
 				fieldDesc.setFieldType(firstCharToUpperCase(key3));
 				fieldDesc.setOptional(jsonObject4.getObject("optional", Boolean.class));
 				fieldDesc.setNote(jsonObject4.getObject("note", String.class));
 				fieldDesc.setFieldName(key3);
-				fieldDesc.setImportType("import yyy."+firstCharToUpperCase(key3)+";");
+				fieldDesc.setImportType("import "+firstCharToUpperCase(key3)+";");
 				fieldDescList.add(fieldDesc);
 				classDesc.setFieldDescList(fieldDescList);
 				ClassDesc classDesc2 = new ClassDesc();
-				classDesc2.setPackeName("yyy");
+				classDesc2.setPackeName("package packageName");
 				classDesc2.setClassName(firstCharToUpperCase(key3));
 				classDescList.add(classDesc2);
 
